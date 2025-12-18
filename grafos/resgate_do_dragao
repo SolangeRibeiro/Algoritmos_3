@@ -1,0 +1,82 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 1001  // limite máximo de salas
+#define INF 1000000
+
+int grafo[MAX][MAX];   // matriz para representar conexões
+int visitado[MAX];     // marca se uma sala já foi visitada
+int distancia[MAX];    // guarda a distância (quantidade de passos)
+int fila[MAX];         // fila manual
+int inicio, fim;       // ponteiros da fila
+
+// Função BFS: encontra menor caminho (em número de salas)
+int bfs(int n, int s, int d) {
+    // Inicializa visitado e distância
+    for (int i = 1; i <= n; i++) {
+        visitado[i] = 0;
+        distancia[i] = INF;
+    }
+
+    // Coloca a sala inicial na fila
+    inicio = 0;
+    fim = 0;
+    fila[fim++] = s;
+    visitado[s] = 1;
+    distancia[s] = 1; // começa contando a própria sala
+
+    // Enquanto houver salas na fila
+    while (inicio < fim) {
+        int atual = fila[inicio++];
+
+        // Se chegou no destino, retorna a distância
+        if (atual == d) return distancia[atual];
+
+        // Percorre todas as salas possíveis
+        for (int i = 1; i <= n; i++) {
+            // Se há ligação entre atual e i e i não foi visitado
+            if (grafo[atual][i] && !visitado[i]) {
+                visitado[i] = 1;
+                distancia[i] = distancia[atual] + 1; // soma mais uma sala
+                fila[fim++] = i; // adiciona na fila
+            }
+        }
+    }
+
+    // Se saiu do while sem achar o destino, é impossível
+    return -1;
+}
+
+int main() {
+    int N, M;
+    cin >> N >> M; // lê número de salas e corredores
+
+    // Zera a matriz (sem ligações)
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            grafo[i][j] = 0;
+        }
+    }
+
+    // Lê os corredores
+    for (int i = 0; i < M; i++) {
+        int u, v;
+        cin >> u >> v;
+
+        // Conecta as duas salas (mão dupla)
+        grafo[u][v] = 1;
+        grafo[v][u] = 1;
+    }
+
+    int S, D;
+    cin >> S >> D; // lê sala de entrada e do dragão
+
+    int resultado = bfs(N, S, D);
+
+    if (resultado == -1)
+        cout << "IMPOSSIVEL" << endl;
+    else
+        cout << resultado << endl;
+
+    return 0;
+}
