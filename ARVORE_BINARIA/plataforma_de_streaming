@@ -1,0 +1,106 @@
+#include <iostream>   
+#include <string>     
+using namespace std;  
+
+// A chave da árvore será o nome do filme (string)
+typedef string KeyType;
+
+// Estrutura que guarda os dados de cada filme
+struct Datatype {
+  KeyType key;         // Nome do filme (chave usada para ordenar na árvore)
+  string genero;       // Gênero do filme (ex: "Terror", "Comédia")
+  int duracao;         // Duração do filme em minutos (ex: 115)
+  int classificacao;   // Classificação indicativa (ex: 14)
+  int ano;             // Ano de lançamento (ex: 2018)
+};
+
+// Estrutura do nó da árvore binária
+struct node {
+  Datatype data;  // Dados do filme armazenado neste nó
+  node *left;     // Ponteiro para o filho da esquerda (nós com nome MENOR)
+  node *right;    // Ponteiro para o filho da direita (nós com nome MAIOR)
+};
+
+// Função para inserir um filme na árvore binária
+void insert(node * & curr, Datatype data) {
+  if (curr == NULL) {               // Se o local está vazio, cria um novo nó
+    curr = new node;               // Aloca memória para um novo nó
+    curr->data = data;             // Salva os dados do filme
+    curr->left = NULL;             // Inicializa o filho esquerdo como vazio
+    curr->right = NULL;            // Inicializa o filho direito como vazio
+  } else if (data.key < curr->data.key) {  // Se o nome é menor, vai para a esquerda
+    insert(curr->left, data);     // Chamada recursiva para esquerda
+  } else {                        // Se é maior ou igual, vai para a direita
+    insert(curr->right, data);   // Chamada recursiva para direita
+  }
+}
+
+// Função para buscar um filme pelo nome
+node * search(node * curr, string key) {
+  if (curr == NULL) {                // Se chegou num local vazio, não achou
+    return NULL;
+  } else if (key == curr->data.key) { // Se encontrou o nome exato
+    return curr;
+  } else if (key < curr->data.key) {  // Se for menor, busca à esquerda
+    return search(curr->left, key);
+  } else {                            // Se for maior, busca à direita
+    return search(curr->right, key);
+  }
+}
+
+// Função para liberar toda a memória usada pela árvore
+void destruct(node *& curr) {
+  if (curr != NULL) {         // Se o nó existe
+    destruct(curr->left);     // Libera a subárvore da esquerda
+    destruct(curr->right);    // Libera a subárvore da direita
+    delete curr;              // Libera o próprio nó
+    curr = NULL;              // Evita ponteiro solto
+  }
+}
+
+int main() {
+  node * root = NULL;  // Ponteiro para a raiz da árvore, começa vazia
+
+  while (true) {         // Loop infinito até que o usuário digite 0
+    int op;
+    cin >> op;           // Lê a operação desejada do usuário
+
+    if (op == 0) break;  // Se for 0, encerra o programa imediatamente
+
+    if (op == 1) {       // Inserir um filme
+      Datatype filme;    // Cria um objeto para armazenar os dados do filme
+      cin.ignore();      // Limpa o buffer para permitir getline corretamente
+
+      getline(cin, filme.key);         // Lê o NOME do filme (string completa)
+      getline(cin, filme.genero);      // Lê o gênero do filme
+      cin >> filme.duracao;            // Lê a duração em minutos (int)
+      cin >> filme.classificacao;      // Lê a classificação indicativa (int)
+      cin >> filme.ano;                // Lê o ano do filme (int)
+
+      insert(root, filme);             // Insere na árvore binária
+    }
+    else if (op == 2) {   // Buscar um filme pelo nome
+      string nomeBusca;
+      cin.ignore();               // Limpa buffer antes de usar getline
+      getline(cin, nomeBusca);    // Lê o nome do filme a ser procurado
+
+      node * result = search(root, nomeBusca);  // Busca na árvore
+
+      if (result != NULL) {        // Se encontrou, imprime todos os dados
+        cout << "Nome: " << result->data.key << endl;
+        cout << "Genero: " << result->data.genero << endl;
+        cout << "Duracao: " << result->data.duracao << " mins" << endl;
+        cout << "Classificacao: " << result->data.classificacao << endl;
+        cout << "Ano: " << result->data.ano << endl;
+      } else {                     // Se não encontrou, mensagem padrão
+        cout << "Filme nao encontrado" << endl;
+      }
+    }
+    else {  // Se digitou qualquer número que não seja 0, 1 ou 2
+      cout << "Operacao invalida" << endl;
+    }
+  }
+
+  destruct(root);  // Libera toda a memória da árvore antes de encerrar
+  return 0;        // Fim do programa
+}
