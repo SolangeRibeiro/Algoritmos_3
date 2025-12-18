@@ -1,0 +1,142 @@
+#include <iostream>  
+using namespace std;
+
+#define INF 99999  // definindo um número bem grande para representar o infinito
+#define MAX 10    // número máximo de vértices que nosso programa vai aceitar
+
+// estrutura de nó
+struct No {
+    int destino;  // o número do vértice para onde vai a ligação
+    int peso;     // o custo (ou distância) dessa ligação
+    No* prox;     // ponteiro para a próxima ligação (para formar a lista)
+};
+
+// função para adicionar uma ligação no grafo
+void adicionaAresta(No* adj[], int origem, int destino, int peso, int orientado) 
+{
+    // cria um novo nó com as informações da ligação
+    No* novo = new No;
+    novo->destino = destino;
+    novo->peso = peso;
+    novo->prox = adj[origem];  // o novo nó aponta para o que já existia
+    adj[origem] = novo;        // o novo nó passa a ser o primeiro da lista
+
+   
+    if (orientado == 0)   // se o grafo nao for orientado, adiciona também o caminho de volta
+    {
+        No* novo2 = new No;
+        novo2->destino = origem;
+        novo2->peso = peso;
+        novo2->prox = adj[destino];
+        adj[destino] = novo2;
+    }
+}
+
+// função que mostra o caminho completo (do início até o fim) (parent guarda quem veio antes de quem)
+void imprimeCaminhoSemEspaco(int parent[], int v) 
+{
+    if (parent[v] == -1) {
+        cout << v;
+        return;
+    }
+    imprimeCaminhoSemEspaco(parent, parent[v]);
+    cout << " " << v;
+}
+
+// função que faz o algoritmo de Dijkstra (acha o menor caminho)
+void dijkstra(No* adj[], int nVertices, int start, int end)
+{
+    int distancia[MAX]; // guarda o menor valor de distância encontrado até cada vértice
+    bool visitado[MAX]; // marca quais vértices já foram "resolvidos"
+    int parent[MAX];    // guarda o "pai" de cada vértice no caminho
+
+
+    for (int i = 0; i < nVertices; i++) 
+    {
+        // inicia todos os vértices com distância infinita, sem pai e não visitados
+        distancia[i] = INF;
+        visitado[i] = false;
+        parent[i] = -1;
+    }
+
+    distancia[start] = 0;  // o vértice de início sempre tem distância 0 (pois ele é o começo)
+
+   
+    for (int c = 0; c < nVertices - 1; c++)  // repetindo o processo n-1 vezes (quantidade de vértices - 1)
+    {
+        // procurando o vértice que ainda não foi visitado e tem a menor distância
+        int minDist = INF;
+        int u = -1;
+
+        for (int i = 0; i < nVertices; i++) 
+        {
+            if (!visitado[i] && distancia[i] < minDist) {
+                minDist = distancia[i];
+                u = i;
+            }
+        }
+
+        if (u == -1) break;  // se não encontrou mais nenhum vértice acessível, termina
+
+        
+        visitado[u] = true;  // marca o vértice encontrado como visitado
+
+        // percorre todas as ligações (arestas) saindo de u
+        No* p = adj[u];
+        while (p != NULL) 
+        {
+            int v = p->destino;  // vértice vizinho
+            int peso = p->peso;  // custo da ligação
+
+            
+            if (!visitado[v] && distancia[u] + peso < distancia[v]) // verifica se o caminho passando por u até v é menor do que o conhecido
+            {
+                distancia[v] = distancia[u] + peso;  // atualiza distância
+                parent[v] = u;                        // registra que o pai de v é u
+            }
+
+            p = p->prox; // vai para a próxima ligação da lista
+        }
+    }
+
+    // mostra o resultado final
+    cout << "Menor caminho: ";
+    imprimeCaminhoSemEspaco(parent, end); // mostra a sequência de vértices
+    cout << endl;
+
+    // mostra o custo total do caminho
+    cout << "Custo: " << distancia[end] << endl;
+}
+
+int main() {
+    int nVertices, orientado, start, end;
+
+    // lê a quantidade de vértices, se é orientado (1) ou não (0),
+    // o vértice inicial e o vértice final
+    cin >> nVertices >> orientado >> start >> end;
+
+    // cria a lista de adjacência (um vetor de ponteiros)
+    No* adj[MAX];
+
+    // inicia todas as posições como vazias
+    for (int i = 0; i < nVertices; i++) {
+        adj[i] = NULL;
+    }
+
+    // agora lê as ligações (arestas)
+    while (true) {
+        int u, v, peso;
+        cin >> u >> v >> peso; // lê origem, destino e custo
+
+        // se ler -1 -1 -1, significa que acabou a entrada
+        if (u == -1 && v == -1 && peso == -1) break;
+
+        // adiciona a ligação no grafo
+        adicionaAresta(adj, u, v, peso, orientado);
+    }
+
+    // executa o algoritmo de Dijkstra
+    dijkstra(adj, nVertices, start, end);
+
+    return 0;
+}
