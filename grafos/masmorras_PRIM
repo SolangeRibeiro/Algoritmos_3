@@ -1,0 +1,82 @@
+#include <iostream>
+using namespace std;
+
+#define INF 999999
+#define MAX 100
+
+int main() {
+    int S, C;
+    cin >> S >> C;
+
+    int grafo[MAX][MAX];
+
+    // Inicializa grafo
+    for (int i = 0; i < S; i++) {
+        for (int j = 0; j < S; j++) {
+            grafo[i][j] = INF;
+        }
+    }
+
+    // Leitura das arestas
+    for (int i = 0; i < C; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        grafo[u][v] = w;
+        grafo[v][u] = w;
+    }
+
+    int visitado[MAX] = {0};
+    int menorPeso[MAX];
+    int pai[MAX];
+    int ordemInclusao[MAX];
+    int ordemCount = 0;
+
+    // Inicializa vetores
+    for (int i = 0; i < S; i++) {
+        menorPeso[i] = INF;
+        pai[i] = -1;
+    }
+
+    menorPeso[0] = 0;
+
+    for (int count = 0; count < S; count++) {
+        int u = -1;
+        int menor = INF;
+
+        // Escolhe o vértice com menor peso não visitado
+        for (int i = 0; i < S; i++) {
+            if (!visitado[i]) {
+                if (menorPeso[i] < menor || (menorPeso[i] == menor && i < u)) {
+                    menor = menorPeso[i];
+                    u = i;
+                }
+            }
+        }
+
+        if (u == -1) break;
+
+        // Marca como visitado e salva ordem
+        visitado[u] = 1;
+        ordemInclusao[ordemCount++] = u;
+
+        // Atualiza os vizinhos
+        for (int v = 0; v < S; v++) {
+            if (grafo[u][v] != INF && !visitado[v]) {
+                if (grafo[u][v] < menorPeso[v] ||
+                   (grafo[u][v] == menorPeso[v] && u < pai[v])) {
+                    menorPeso[v] = grafo[u][v];
+                    pai[v] = u;
+                }
+            }
+        }
+    }
+
+    // Imprime as arestas na ordem de inclusão (exceto o primeiro vértice)
+    for (int i = 1; i < ordemCount; i++) {
+        int v = ordemInclusao[i];
+        int u = pai[v];
+        cout << u << " " << v << " " << grafo[u][v] << endl;
+    }
+
+    return 0;
+}
