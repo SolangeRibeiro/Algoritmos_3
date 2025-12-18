@@ -1,0 +1,70 @@
+#include <iostream>
+using namespace std;
+
+// Função que calcula a orientação de 3 pontos
+// Retorno:
+//   0  → Colineares
+//   1  → Sentido horário
+//   2  → Sentido anti-horário
+int orientacao(int x1, int y1, int x2, int y2, int x3, int y3) {
+    // Cálculo do determinante (produto vetorial)
+    int val = (y2 - y1) * (x3 - x2) - 
+              (x2 - x1) * (y3 - y2);
+
+    if (val == 0) return 0;          // colinear
+    return (val > 0) ? 1 : 2;        // horário : anti-horário
+}
+
+// Função que verifica se ponto P(x3,y3) está no segmento AB
+bool dentroDoSegmento(int x1, int y1, int x2, int y2,
+                      int x3, int y3) {
+    // Verifica se x3 está entre x1 e x2
+    if (x3 >= min(x1, x2) && x3 <= max(x1, x2) &&
+        y3 >= min(y1, y2) && y3 <= max(y1, y2))
+        return true;
+
+    return false;
+}
+
+// Função principal de interseção entre dois segmentos
+// Segmento 1: (x1,y1)-(x2,y2)
+// Segmento 2: (x3,y3)-(x4,y4)
+bool intersecta(int x1, int y1, int x2, int y2,
+                int x3, int y3, int x4, int y4) {
+
+    // Calcula orientações
+    int o1 = orientacao(x1, y1, x2, y2, x3, y3);
+    int o2 = orientacao(x1, y1, x2, y2, x4, y4);
+    int o3 = orientacao(x3, y3, x4, y4, x1, y1);
+    int o4 = orientacao(x3, y3, x4, y4, x2, y2);
+
+    // Caso geral: segmentos se cruzam
+    if (o1 != o2 && o3 != o4)
+        return true;
+
+    // Casos colineares:
+    if (o1 == 0 && dentroDoSegmento(x1, y1, x2, y2, x3, y3)) return true;
+    if (o2 == 0 && dentroDoSegmento(x1, y1, x2, y2, x4, y4)) return true;
+    if (o3 == 0 && dentroDoSegmento(x3, y3, x4, y4, x1, y1)) return true;
+    if (o4 == 0 && dentroDoSegmento(x3, y3, x4, y4, x2, y2)) return true;
+
+    // Caso contrário não se cruzam
+    return false;
+}
+
+// PROGRAMA PRINCIPAL
+int main() {
+    int x1, y1, x2, y2;
+    int x3, y3, x4, y4;
+
+    // Lê os 8 números da entrada
+    cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3 >> x4 >> y4;
+
+    // Testa a interseção
+    if (intersecta(x1, y1, x2, y2, x3, y3, x4, y4))
+        cout << "SIM";
+    else
+        cout << "NAO";
+
+    return 0;
+}
