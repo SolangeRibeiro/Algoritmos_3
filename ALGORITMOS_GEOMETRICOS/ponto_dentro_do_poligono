@@ -1,0 +1,51 @@
+#include <iostream>
+using namespace std;
+
+// Função que retorna true se o ponto (px, py) está dentro do polígono
+bool pontoDentro(int px, int py, int x[], int y[], int n) {
+    bool dentro = false; // começa assumindo que está fora
+
+    // Percorre todas as arestas do polígono
+    for (int i = 0, j = n - 1; i < n; j = i++) {
+
+        // Verifica se a aresta entre (x[i], y[i]) e (x[j], y[j])
+        // cruza o raio horizontal que parte do ponto (px, py)
+        bool cond1 = (y[i] > py) != (y[j] > py);
+
+        // Calcula a posição x onde o segmento cruza a horizontal do ponto
+        double xIntersec = x[j] + (double)(px - x[j]) * (double)(y[i] - y[j]) / (double)(y[i] - y[j]);
+
+        // Verifica se o ponto está à esquerda da interseção
+        bool cond2 = px < xIntersec;
+
+        // Se cruzou a linha, alterna o valor
+        if (cond1 && cond2)
+            dentro = !dentro;
+    }
+
+    return dentro;
+}
+
+int main() {
+    int N;
+    cin >> N; // número de vértices do polígono
+
+    int x[110], y[110]; // coordenadas do polígono
+
+    // leitura dos vértices
+    for (int i = 0; i < N; i++) {
+        cin >> x[i] >> y[i];
+    }
+
+    // ponto a ser testado
+    int px, py;
+    cin >> px >> py;
+
+    // Usa o algoritmo geométrico para decidir
+    if (pontoDentro(px, py, x, y, N))
+        cout << "DENTRO";
+    else
+        cout << "!(DENTRO)";
+
+    return 0;
+}
