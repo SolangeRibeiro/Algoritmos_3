@@ -1,0 +1,94 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 100    // Número máximo de cidades 
+#define INF 999999999  // Valor muito alto, representa infinito
+
+// Função que calcula o menor tempo entre A e B usando Dijkstra
+int dijkstra(int n, int grafo[MAX][MAX], int origem, int destino) 
+{
+    int distancia[MAX]; // guarda o menor tempo até cada cidade
+    bool visitado[MAX]; // indica se a cidade já foi visitada
+
+    // Inicializa as distâncias e marca todas as cidades como não visitadas
+    for (int i = 1; i <= n; i++) 
+    {
+        distancia[i] = INF;
+        visitado[i] = false;
+    }
+
+    // A distância da origem até ela mesma é zero
+    distancia[origem] = 0;
+
+    // Faz o processo de encontrar o menor caminho
+    for (int i = 1; i <= n; i++) 
+    {
+        int menor = -1;
+
+        // Escolhe a cidade com menor distância que ainda não foi visitada
+        for (int j = 1; j <= n; j++) 
+        {
+            if (!visitado[j] && (menor == -1 || distancia[j] < distancia[menor])) 
+            {
+                menor = j;
+            }
+        }
+
+        // Se não encontrou, para
+        if (distancia[menor] == INF) break;
+
+        // Marca como visitado
+        visitado[menor] = true;
+
+        // Atualiza os vizinhos
+        for (int k = 1; k <= n; k++) 
+        {
+            if (grafo[menor][k] != INF) { // Se existe ligação
+                int novaDist = distancia[menor] + grafo[menor][k];
+                if (novaDist < distancia[k]) {
+                    distancia[k] = novaDist;
+                }
+            }
+        }
+    }
+
+    // Retorna a menor distância até o destino
+    return distancia[destino];
+}
+
+int main() 
+{
+    int N, M;
+    cin >> N >> M; // lê número de cidades e estradas
+
+    int grafo[MAX][MAX];
+
+    // Inicializa todas as ligações com infinito (sem conexão)
+    for (int i = 1; i <= N; i++) 
+    {
+        for (int j = 1; j <= N; j++) 
+        {
+            grafo[i][j] = INF;
+        }
+    }
+
+    // Lê as estradas
+    for (int i = 0; i < M; i++) 
+    {
+        int u, v, t;
+        cin >> u >> v >> t;
+
+        // Como é mão dupla, liga os dois lados
+        grafo[u][v] = t;
+        grafo[v][u] = t;
+    }
+
+    int A, B;
+    cin >> A >> B; // lê origem e destino
+
+    int menorTempo = dijkstra(N, grafo, A, B);
+
+    cout << menorTempo << endl;
+
+    return 0;
+}
