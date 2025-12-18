@@ -1,0 +1,102 @@
+#include <iostream>
+using namespace std;
+
+const int MAXV = 100;     // número máximo de vértices
+const int INF  = 1000000; // "infinito" arbitrário
+
+// Nó da lista de adjacência
+struct No {
+    int v;       // vértice destino
+    int peso;    // peso da aresta
+    No* prox;    // próximo nó da lista
+};
+
+// Lista de adjacência, para cada vértice, temos uma lista ligada de arestas
+No* adj[MAXV]; 
+
+// Função para inserir aresta na lista de adjacência
+void adicionaAresta(int u, int v, int peso) {
+    No* novo1 = new No{v, peso, adj[u]};
+    adj[u] = novo1;
+
+    No* novo2 = new No{u, peso, adj[v]};
+    adj[v] = novo2;
+}
+
+// Algoritmo de Prim
+void prim(No* adj[], int nVertices, int start) {
+    bool intree[MAXV];    // marca se o vértice já foi incluído na árvore
+    int distance[MAXV];  // menor peso de aresta que conecta cada vértice à árvore
+    int parent[MAXV];   // armazena o pai de cada vértice na árvore
+
+    // Inicialização: nenhum vértice está na árvore e as distâncias são infinitas
+    for (int i = 0; i < nVertices; i++) {
+        intree[i] = false;
+        distance[i] = INF;
+        parent[i] = -1;
+    }
+
+    // O vértice inicial tem distância 0 (ele será escolhido primeiro)
+    distance[start] = 0;
+    int v = start;
+
+    while (!intree[v])  // Enquanto ainda houver vértices fora da árvore
+    {
+        intree[v] = true;   // marca o vértice como incluído
+
+        // percorre vizinhos de v
+        for (No* p = adj[v]; p != nullptr; p = p->prox) {
+            int destino = p->v;     // vértice vizinho
+            int weight = p->peso;  // peso da aresta v -> destino
+
+            if (distance[destino] > weight && !intree[destino])  // Se esse vizinho ainda não está na árvore e a aresta é melhor (menor peso) que a registrada antes
+            {
+                distance[destino] = weight;  // atualiza menor peso
+                parent[destino] = v;        // guarda que v conecta esse vértice
+            } 
+        }
+
+        // escolhe próximo vértice com menor distância
+        v = 0;
+        int dist = INF;
+        for (int u = 0; u < nVertices; u++) {
+            if (!intree[u] && distance[u] < dist) {
+                dist = distance[u];
+                v = u;
+            }
+        }
+    }
+
+    cout << "Arvore Geradora Minima:\n";   // Impressão da Árvore Geradora Mínima
+    int soma = 0;
+    for (int i = 0; i < nVertices; i++)  
+    {
+        if (parent[i] != -1)  // se o vértice tem pai (não é o inicial)
+        {
+            cout << parent[i] << " " << i << "\n";
+            soma += distance[i];  // soma o peso da aresta
+        }
+    }
+    cout << "Custo: " << soma << endl;   // imprime o custo total da AGM
+}
+
+int main() {
+    int nVertices, start;
+    cin >> nVertices >> start >> start; // Lê número de vértices e o vértice inicial
+    
+    // inicializa listas como vazias
+    for (int i = 0; i < nVertices; i++) {
+        adj[i] = nullptr;
+    }
+
+    int u, v, peso;
+     
+    while (cin >> u >> v >> peso && !(u == -1 && v == -1 && peso == -1)) 
+    {
+        adicionaAresta(u, v, peso);  // insere a aresta no grafo
+    }
+
+    prim(adj, nVertices, 0); // Executa o algoritmo de Prim a partir do vértice 0
+
+    return 0;
+}
