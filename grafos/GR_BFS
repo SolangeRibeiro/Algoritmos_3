@@ -1,0 +1,83 @@
+#define MAXV 1000  // número máximo de vértices permitido
+#include <iostream>
+#include <list>
+using namespace std;
+
+// Estrutura que representa uma aresta do grafo
+struct Aresta {
+    int destino, peso;
+};
+
+// Função que implementa a Busca em Largura
+void bfs(list<Aresta> adj[], int nVertices, int s) {
+    char state[MAXV];   // guarda o estado de cada vértice:
+    int pai[MAXV];     // guarda o pai de cada vértice no percurso BFS
+
+
+    // Inicializa todos os vértices como não descobertos e sem pai
+    for (int u = 0; u < nVertices; u++) {
+        state[u] = 'u';
+        pai[u] = -1;
+    }
+
+    // vetor que simula a fila
+    int fila[MAXV];
+    int ini = 0, fim = 0;   // ini = início da fila, fim = fim da fila
+
+
+    // Define o vértice inicial como descoberto e insere na fila
+    state[s] = 'd';
+    pai[s] = -1;
+    fila[fim++] = s; // insere s na fila
+
+
+    while (ini < fim) {       // Enquanto houver vértices na fila
+        int u = fila[ini++]; // Remove o vértice do início da fila
+
+        cout << u << "\n"; // imprime vértice atual visitado
+
+        // Para cada aresta (u -> v) da lista de adjacência de u
+        for (auto &ar : adj[u]) {
+            int v = ar.destino;
+            cout << u << " " << v << "\n"; // imprime aresta 
+           
+            if (state[v] == 'u')  // Se o vértice ainda não foi descoberto
+            {
+                state[v] = 'd';
+                pai[v] = u;
+                fila[fim++] = v; // // Insere v no fim da fila
+            }
+        }
+
+        state[u] = 'p';  // Marca u como processado (todas as arestas de u foram analisadas)
+    }
+}
+
+int main() {
+    int nVertices, s;
+    cin >> nVertices >> s;
+
+    list<Aresta> listas_adj[MAXV];  // Lista de adjacência do grafo
+
+    int origem, destino, peso;
+    
+    
+    while (cin >> origem >> destino >> peso && !(origem == -1 && destino == -1 && peso == -1)) // Condição de parada (-1 -1 -1)
+    {
+
+    // Insere a aresta (grafo não orientado → insere nos dois sentidos)
+        listas_adj[origem].push_back({destino, peso});
+        listas_adj[destino].push_back({origem, peso});
+    }
+
+    // ordenar vizinhos em ordem crescente (opcional, mas deixa igual ao exemplo)
+    for (int i = 0; i < nVertices; i++) {
+        listas_adj[i].sort([](const Aresta &a, const Aresta &b) {
+            return a.destino < b.destino;
+        });
+    }
+
+    bfs(listas_adj, nVertices, s);  // Executa a BFS a partir do vértice inicial s
+
+    return 0;
+}
