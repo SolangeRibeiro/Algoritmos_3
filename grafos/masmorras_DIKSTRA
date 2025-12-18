@@ -1,0 +1,74 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 1000     // máximo de salas
+#define INF 1000000  // valor bem grande (simboliza "infinito")
+
+// Matrizes para armazenar conexões e pesos (dificuldades)
+int grafo[MAX][MAX];
+int distancia[MAX];
+int visitado[MAX];
+
+// Função que encontra o nó não visitado com menor distância atual
+int menorDistancia(int s) {
+    int menor = INF;
+    int indice = -1;
+
+    for (int i = 0; i < s; i++) {
+        if (!visitado[i] && distancia[i] < menor) {
+            menor = distancia[i];
+            indice = i;
+        }
+    }
+    return indice;
+}
+
+// Função principal do Dijkstra
+void dijkstra(int s, int c) {
+    // Inicializa distâncias e visitados
+    for (int i = 0; i < s; i++) {
+        distancia[i] = INF;
+        visitado[i] = 0;
+        for (int j = 0; j < s; j++) {
+            grafo[i][j] = INF; // sem conexão inicial
+        }
+    }
+
+    // Leitura das conexões
+    for (int i = 0; i < c; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        grafo[u][v] = w; // ligação direta
+        grafo[v][u] = w; // bidirecional
+    }
+
+    // Dijkstra começa da sala 0
+    distancia[0] = 0;
+
+    for (int i = 0; i < s - 1; i++) {
+        // Escolhe o nó com menor distância
+        int u = menorDistancia(s);
+        if (u == -1) break; // se não tem mais conexões
+
+        visitado[u] = 1;
+
+        // Atualiza vizinhos
+        for (int v = 0; v < s; v++) {
+            if (!visitado[v] && grafo[u][v] != INF && distancia[u] + grafo[u][v] < distancia[v]) {
+                distancia[v] = distancia[u] + grafo[u][v];
+            }
+        }
+    }
+
+    // Imprime as distâncias da sala 0 até todas as outras
+    for (int i = 1; i < s; i++) {
+        cout << distancia[i] << endl;
+    }
+}
+
+int main() {
+    int s, c;
+    cin >> s >> c; // lê número de salas e conexões
+    dijkstra(s, c);
+    return 0;
+}
