@@ -1,0 +1,85 @@
+#include <iostream>  
+#include <list>      
+using namespace std; 
+
+typedef int KeyType;    // Define KeyType como sinônimo de int (chave da árvore)
+typedef int ValueType;  // Define ValueType como sinônimo de int (valor armazenado)
+
+struct Datatype {     // Estrutura que agrupa chave e valor
+  KeyType key;        // Chave usada para ordenação na árvore
+  ValueType value;    // Valor associado (nesse caso, igual à chave)
+};
+
+struct node {         // Estrutura de um nó da árvore binária
+  Datatype data;      // Dados do nó (chave e valor)
+  node *left;         // Ponteiro para filho da esquerda
+  node *right;        // Ponteiro para filho da direita
+};
+
+void print_value(ValueType value) { // Função para imprimir o valor
+  cout << value << " ";            // Imprime o valor seguido de espaço
+}
+
+void insert(node * & curr, Datatype data) { // Insere um nó na árvore
+  if (curr == NULL) {              // Se a posição está vazia
+    curr = new node;               // Aloca novo nó
+    curr->data = data;             // Atribui a chave e valor
+    curr->left = NULL;             // Filhos começam vazios
+    curr->right = NULL;
+  } else if (data.key < curr->data.key) { // Se chave é menor → vai pra esquerda
+    insert(curr->left, data);     // Chamada recursiva à esquerda
+  } else {                        // Caso contrário → vai pra direita
+    insert(curr->right, data);   // Chamada recursiva à direita
+  }
+}
+
+node * search(node * curr, int key) { // Busca um nó pela chave
+  if (curr == NULL) {          // Se posição vazia, não encontrou
+    return NULL;
+  } else if (key == curr->data.key) { // Se encontrou a chave
+    return curr;
+  } else if (key < curr->data.key) {  // Se menor, busca à esquerda
+    return search(curr->left, key);
+  } else {                            // Se maior, busca à direita
+    return search(curr->right, key);
+  }
+}
+
+void destruct(node *& curr) { // Função para destruir (liberar) a árvore
+  if (curr != NULL) {         // Se nó existe
+    destruct(curr->left);     // Libera recursivamente esquerda
+    destruct(curr->right);    // Libera recursivamente direita
+    delete curr;              // Libera o próprio nó
+    curr = NULL;              // Evita ponteiro pendurado
+  }
+}
+
+int main() {                      // Início do programa principal
+
+  node * root = NULL;            // Cria raiz da árvore vazia
+
+  int N;                         // Variável para quantidade de operações
+  cin >> N;                      // Lê o número de comandos
+
+  char op;                       // Vai armazenar 'i' ou 'b'
+  int x;                         // Valor a ser inserido/buscado
+
+  for (int i = 0; i < N; i++) {  // Repete N vezes
+    cin >> op >> x;              // Lê operação e número
+
+    if (op == 'i') {             // Se for inserção
+      insert(root, {x, x});      // Insere chave e valor iguais
+    } 
+    else if (op == 'b') {        // Se for busca
+      node * result = search(root, x); // Busca na árvore
+      if (result != NULL) {     // Se encontrou
+        cout << "Sim" << endl;  // Imprime "Sim"
+      } else {                  // Se não encontrou
+        cout << "Não" << endl;  // Imprime "Não"
+      }
+    }
+  }
+
+  destruct(root);                // Libera toda a árvore da memória
+  return 0;                      // Encerra o programa
+}
