@@ -1,0 +1,110 @@
+#include <iostream>   
+#include <list>       
+using namespace std;
+
+typedef string KeyType;   // Agora a chave da árvore será o NOME (string)
+typedef int ValueType;    // Valor armazenado será a IDADE (int)
+
+// Estrutura que agrupa NOME e IDADE
+struct Datatype {
+  KeyType key;            // NOME da pessoa (usado para ordenar)
+  ValueType value;        // IDADE da pessoa (apenas armazenado)
+};
+
+// Estrutura de cada NÓ da árvore binária
+struct node {
+  Datatype data;          // Dados do nó (nome e idade)
+  node *left;             // Ponteiro para filho da ESQUERDA
+  node *right;            // Ponteiro para filho da DIREITA
+};
+
+// Função para imprimir nome e idade
+void print_value(Datatype data) {
+  cout << data.key << " " << data.value << endl; // Ex: "Ana 22"
+}
+
+// Função para INSERIR um novo nó na árvore
+void insert(node * & curr, Datatype data) {
+  if (curr == NULL) {         // Se posição está vazia (encontrei onde inserir)
+    curr = new node;          // Aloca novo nó
+    curr->data = data;        // Armazena nome e idade
+    curr->left = NULL;        // Inicializa filho da esquerda
+    curr->right = NULL;       // Inicializa filho da direita
+  } 
+  else if (data.key < curr->data.key) { // Se o nome é MENOR → vai pra esquerda (ordem alfabética)
+    insert(curr->left, data);           // Chama recursivamente para a esquerda
+  } 
+  else {                                // Caso contrário → vai pra direita
+    insert(curr->right, data);          // Chama recursivamente para a direita
+  }
+}
+
+// Função para BUSCAR pessoa pelo nome
+node * search(node * curr, string key) {
+  if (curr == NULL) {                   // Se cheguei numa posição vazia → não existe
+    return NULL;
+  } 
+  else if (key == curr->data.key) {     // Se encontrei o nome exato
+    return curr;
+  } 
+  else if (key < curr->data.key) {      // Se nome é menor → busca à esquerda
+    return search(curr->left, key);
+  } 
+  else {                                // Se maior → busca à direita
+    return search(curr->right, key);
+  }
+}
+
+// Função para imprimir em ordem alfabética (IN-ORDER TRAVERSAL)
+void print_in_order(node * curr) {
+  if (curr != NULL) {       // Se o nó existe
+    print_in_order(curr->left);   // 1) Visita a esquerda (alfabético menor)
+    print_value(curr->data);      // 2) Imprime o nome atual
+    print_in_order(curr->right);  // 3) Visita a direita (alfabético maior)
+  }
+}
+
+// Função para destruir a árvore (liberar memória)
+void destruct(node *& curr) {
+  if (curr != NULL) {
+    destruct(curr->left);   // Libera subárvore esquerda
+    destruct(curr->right);  // Libera subárvore direita
+    delete curr;            // Libera o nó atual
+    curr = NULL;            // Evita ponteiro pendurado
+  }
+}
+
+int main() {
+  node * root = NULL;      // Cria a raiz da árvore vazia
+
+  int N;                   // Quantidade de operações
+  cin >> N;                // Lê o número de comandos
+
+  char op;                 // Comando: 'i', 'b' ou 'p'
+  string nome;             // Nome da pessoa (chave da árvore)
+  int idade;               // Idade da pessoa
+
+  for (int i = 0; i < N; i++) {   // Repete N vezes
+    cin >> op;                    // Lê operação
+
+    if (op == 'i') {              // INSERIR
+      cin >> nome >> idade;       // Ex: i Ana 22
+      insert(root, {nome, idade});  // Insere na árvore
+    } 
+    else if (op == 'b') {         // BUSCAR
+      cin >> nome;                // Ex: b Maria
+      node * result = search(root, nome); // Busca pelo nome
+      if (result != NULL) {
+        cout << "Sim" << endl;    // Encontrou
+      } else {
+        cout << "Não" << endl;    // Não encontrado
+      }
+    }
+    else if (op == 'p') {         // IMPRIMIR ORDEM ALFABÉTICA
+      print_in_order(root);       // Mostra todos em ordem alfabética
+    }
+  }
+
+  destruct(root);                 // Libera toda a memória da árvore
+  return 0;                       // Encerra o programa
+}
