@@ -1,0 +1,113 @@
+#include <iostream>
+#include <list>     
+using namespace std;
+
+#define MAX 10
+
+// Estrutura para representar uma aresta (vizinho)
+struct no {
+    int destino;
+};
+
+// Variáveis globais
+int cor[MAX]; // 0 = branco, 1 = cinza, 2 = preto
+int d[MAX];   // tempo de descoberta
+int f[MAX];   // tempo de término
+int tempo;    // contador global
+
+//Função recursiva de visita
+void dfs_visit(list<no> adj[], int u) 
+{
+    cor[u] = 1;    // cinza = em processamento
+    tempo++;
+    d[u] = tempo;  // registra tempo de descoberta
+
+    // percorre lista de adjacência do vértice u
+    for (auto it = adj[u].begin(); it != adj[u].end(); ++it) 
+    {
+        int v = it->destino; // obtém o vértice destino
+        if (cor[v] == 0) {
+            dfs_visit(adj, v);
+        }
+    }
+
+    cor[u] = 2;    // preto = finalizado
+    tempo++;
+    f[u] = tempo;  // registra tempo de término
+}
+
+//Função principal DFS
+void dfs(list<no> adj[], int nVertices) 
+{
+    for (int i = 0; i < nVertices; i++)  // inicializa vetores
+    {
+        cor[i] = 0;
+        d[i] = 0;
+        f[i] = 0;
+    }
+
+    tempo = 0;
+
+    for (int u = 0; u < nVertices; u++)  // percorre todos os vértices
+    {
+        if (cor[u] == 0) {
+            dfs_visit(adj, u);
+        }
+    }
+}
+
+//funçao de Ordenação Topológica 
+void ordenacao_topologica(int f[], int nVertices) 
+{
+    int vertices[MAX];
+    for (int i = 0; i < nVertices; i++)
+        vertices[i] = i;
+
+    for (int i = 0; i < nVertices - 1; i++)  // ordena por f[] decrescente
+    {
+        for (int j = i + 1; j < nVertices; j++) 
+        {
+            if (f[vertices[i]] < f[vertices[j]]) 
+            {
+                int tmp = vertices[i];
+                vertices[i] = vertices[j];
+                vertices[j] = tmp;
+            }
+        }
+    }
+
+    for (int i = 0; i < nVertices; i++) //imprime ordenação topológica (sem espaço final)
+    {
+        cout << vertices[i] << " ";  //imprime com o espaço no final
+    }
+    /*cout << vertices[i]; 
+        if (i < nVertices - 1)  para imprimir sem o espeço no final
+            cout << " ";
+    */
+    cout << endl;
+}
+
+int main() {
+    int nVertices, orientado;
+    cin >> nVertices >> orientado;
+
+    list<no> adj[MAX]; // lista de adjacência
+
+    // lendo as arestas
+    int u, v;
+    cin >> u >> v;
+
+    while (u != -1 || v != -1) {
+        adj[u].push_back({v});  // adiciona v na lista de u
+
+        if (orientado == 0) // se não orientado, adiciona o inverso
+            adj[v].push_back({u});
+
+        cin >> u >> v;
+    }
+
+    dfs(adj, nVertices);                // executa DFS
+    ordenacao_topologica(f, nVertices); // exibe ordenação topológica
+
+    return 0;
+}
