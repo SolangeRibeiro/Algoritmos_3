@@ -1,0 +1,36 @@
+#include <iostream>
+#include <cmath>   
+using namespace std;
+
+// Função geométrica que calcula a área usando produto vetorial
+double areaTriangulo(int x1, int y1, int x2, int y2, int x3, int y3) {
+
+    // Vetor AB = (x2 - x1, y2 - y1)
+    int ABx = x2 - x1;
+    int ABy = y2 - y1;
+
+    // Vetor AC = (x3 - x1, y3 - y1)
+    int ACx = x3 - x1;
+    int ACy = y3 - y1;
+
+    // Produto vetorial 2D (magnitude)
+    // |AB x AC| = |ABx * ACy - ABy * ACx|
+    double area = abs(ABx * ACy - ABy * ACx) / 2.0;
+
+    return area;
+}
+
+int main() {
+    int x1, y1, x2, y2, x3, y3;
+
+    // Lê as coordenadas dos 3 pontos
+    cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
+
+    // Calcula a área usando o algoritmo geométrico
+    double area = areaTriangulo(x1, y1, x2, y2, x3, y3);
+
+    // Imprime a área do triângulo
+    cout << area;
+
+    return 0;
+}
