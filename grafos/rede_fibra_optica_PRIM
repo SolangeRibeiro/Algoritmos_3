@@ -1,0 +1,73 @@
+#include <iostream>
+using namespace std;
+
+#define INF 999999 // valor alto para representar infinito
+
+// Estrutura para armazenar as conexões (matriz de adjacência)
+int grafo[101][101]; // custo entre cidades
+
+int main() {
+    int N, M;
+    cin >> N >> M;
+
+    // Inicializa a matriz com INF (sem conexão)
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            if (i == j) grafo[i][j] = 0;
+            else grafo[i][j] = INF;
+        }
+    }
+
+    // Lê as conexões: u, v, c (cidade u, cidade v, custo c)
+    for (int i = 0; i < M; i++) {
+        int u, v, c;
+        cin >> u >> v >> c;
+        grafo[u][v] = c;
+        grafo[v][u] = c; // grafo não-direcionado
+    }
+
+    // Vetores auxiliares
+    bool visitado[101]; // marca as cidades já incluídas na AGM
+    int menorCusto[101]; // guarda o menor custo para conectar cada cidade
+
+    // Inicializa os vetores
+    for (int i = 1; i <= N; i++) {
+        visitado[i] = false;
+        menorCusto[i] = INF;
+    }
+
+    // Começa o Prim pela cidade 1
+    menorCusto[1] = 0; // custo 0 para o primeiro nó
+    int custoTotal = 0; // custo da árvore mínima
+
+    // Precisamos adicionar N cidades
+    for (int k = 1; k <= N; k++) {
+        int prox = -1;
+        int menor = INF;
+
+        // Escolhe a cidade não visitada com menor custo atual
+        for (int i = 1; i <= N; i++) {
+            if (!visitado[i] && menorCusto[i] < menor) {
+                menor = menorCusto[i];
+                prox = i;
+            }
+        }
+
+        // Marca cidade escolhida como visitada
+        visitado[prox] = true;
+        // Soma o custo para a AGM
+        custoTotal += menorCusto[prox];
+
+        // Atualiza os custos das cidades vizinhas
+        for (int i = 1; i <= N; i++) {
+            if (!visitado[i] && grafo[prox][i] < menorCusto[i]) {
+                menorCusto[i] = grafo[prox][i];
+            }
+        }
+    }
+
+    // Imprime o custo mínimo total
+    cout << custoTotal << endl;
+
+    return 0;
+}
