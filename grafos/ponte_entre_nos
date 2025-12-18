@@ -1,0 +1,118 @@
+#include <iostream>
+using namespace std;
+
+// Estrutura de nó para armazenar a lista de adjacência
+struct No {
+    int destino;
+    No* prox;
+};
+
+// Função para inserir aresta na lista de adjacência
+void adicionaAresta(No* adj[], int origem, int destino) 
+{
+    No* novo = new No;   //cria um novo nó  
+    novo->destino = destino;
+    //insere no inicio da lista
+    novo->prox = adj[origem];
+    adj[origem] = novo;
+}
+
+// Função para remover uma aresta (origem -> destino)
+void removeAresta(No* adj[], int origem, int destino) 
+{
+    No* atual = adj[origem];
+    No* anterior = NULL;
+
+    while (atual != NULL) //percorre a lista encadeada ate encontrar o destino
+    {
+        if (atual->destino == destino) //se encontrar o nó com o destino
+        {
+            if (anterior == NULL)   //se o nó a ser removido for o primeiro da lista
+            {
+                adj[origem] = atual->prox;
+            } 
+            else {   //se nao, ajusta o ponteiro do nó anterior
+                anterior->prox = atual->prox;
+            }
+            delete atual;  //libera a memoria do nó removido
+            return;
+        }
+        //avança na lista
+        anterior = atual;
+        atual = atual->prox;
+    }
+}
+
+// DFS para marcar cidades alcançáveis (Função de busca em profundidade (DFS))
+void dfs(int v, bool visitado[], No* adj[]) 
+{
+    visitado[v] = true;  //marca a cidade atual como visitada 
+    //percorre todos caminhos apartir dessa cidade
+    No* p = adj[v];
+    while (p != NULL) 
+    {
+        if (!visitado[p->destino])  //se a cidade destino ainda nao foi visitada
+        {
+            dfs(p->destino, visitado, adj);   //chama dfs recursivamente
+        }
+        p = p->prox;   //passa para o proximo destino da lista
+    }
+}
+
+int main() 
+{
+    int N, M;
+    cin >> N >> M;  //entrando com as cidades e caminhos 
+
+    // Inicializa o vetor de listas de adjacência
+    No* adj[101];
+    for (int i = 1; i <= N; i++) 
+    {
+        adj[i] = NULL;  //inicializa todas as listas como vazias 
+    }
+
+    // Leitura dos caminhos
+    for (int i = 0; i < M; i++) 
+    {
+        int A, B;   //cada caminho liga duas cidades (A e B)
+        cin >> A >> B;
+        adicionaAresta(adj, A, B);  //adiciona o caminho A para B
+        adicionaAresta(adj, B, A); // adiciona o caminho B para A (bidirecional)
+    }
+
+    int X, Y;
+    cin >> X >> Y;  //entrando com a Ponte que será destruída
+
+    // Remove a ponte entre X e Y
+    removeAresta(adj, X, Y);
+    removeAresta(adj, Y, X);
+
+
+    bool visitado[101];  // Cria vetor de controle de cidades visitadas
+    for (int i = 1; i <= N; i++) 
+    {
+        visitado[i] = false;  // Inicializa todas como nao visitadas
+    }
+
+    dfs(X, visitado, adj);  // Inicia a DFS a partir da cidade X (para ver quem continua acessível)
+
+    bool temInacessivel = false; //todas as cidades nao visitadas ficam inacessiveis por causa da remoçao das pontes
+    
+    for (int i = 1; i <= N; i++)  //percorre todas cidades
+    {
+        if (!visitado[i])  //se uma cidade nao foi visitada entao esta isolada
+        {
+            cout << i << " ";
+            temInacessivel = true;
+        }
+    }
+
+    if (!temInacessivel) //se todas as cidades forem acessiveis
+    {
+        cout << "Nenhuma cidade inacessível.";
+    }
+
+    cout << endl;
+
+    return 0;
+}
