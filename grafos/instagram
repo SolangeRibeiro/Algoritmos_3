@@ -1,0 +1,64 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Estrutura de nó para armazenar a lista de adjacência
+struct No {
+    int destino;  //usuario que é seguido
+    No* prox;    //aponta o proximo nó da lista 
+};
+
+// Função para inserir aresta na lista de adjacência
+void adicionaAresta(No* adj[], int origem, int destino) {
+    No* novo = new No;   //criando novo nó para o destino
+    novo->destino = destino;
+    //insere no inicio da lista encadeada
+    novo->prox = adj[origem];
+    adj[origem] = novo;
+}
+
+int main() {
+    int N;
+    cin >> N;   //lendo a quantidade de usuarios
+    cin.ignore(); // limpar buffer do cin, para entrar com o getline
+
+    string usuarios[100]; // vetor para guardar nomes dos usuários
+    
+    for (int i = 0; i < N; i++) 
+    {
+        getline(cin, usuarios[i]);   // lendo os nomes
+    }
+
+    // Inicializa listas de adjacência
+    No* adj[100];
+    for (int i = 0; i < N; i++) 
+    {
+        adj[i] = NULL;
+    }
+
+    // Leitura das relações (quem cada usuário segue)
+    for (int i = 0; i < N; i++) 
+    {
+        int x;
+        while (cin >> x && x != -1) 
+        {
+            adicionaAresta(adj, i, x);  //cria aresta i para x
+        }
+    }
+
+    int alvo;     // Usuário que queremos os seguidores
+    cin >> alvo;  //lendo o usuario
+
+    for (int i = 0; i < N; i++)  // Procurar quem segue "alvo"
+    {
+        for (No* p = adj[i]; p != NULL; p = p->prox) 
+        {
+            if (p->destino == alvo)  //se i segue alvo
+            {
+                cout << usuarios[i] << endl; // imprime usuario que segue alvo
+            }
+        }
+    }
+
+    return 0;
+}
