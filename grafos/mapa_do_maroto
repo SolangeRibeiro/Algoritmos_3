@@ -1,0 +1,53 @@
+#include <iostream>
+#include <list>   
+using namespace std;
+
+// Estrutura de um nó
+struct no {
+    int v;    // vertice de destino
+    int peso; // peso da aresta
+};
+
+// Função que insere arestas no grafo
+void cria_aresta(list<no> adj[], int u, int v, int p, int orientado) 
+{
+    no aux;
+    aux.v = v;      // recebe v
+    aux.peso = p;   // peso
+    adj[u].push_back(aux);   // adiciona v na lista de adjacência de u
+
+    if (orientado == 0)  // se o grafo não for orientado
+    {   
+        aux.v = u;          // cria a volta
+        aux.peso = p;
+        adj[v].push_back(aux);  // insere u na lista de v
+    }
+}
+
+// Função para imprimir a lista de adjacência
+void mostra_lista(list<no> adj[], int nVertices) 
+{
+    for (int i = 0; i < nVertices; i++) {
+        for (auto it = adj[i].begin(); it != adj[i].end(); it++) {
+            cout << i << " " << it->v << " " << it->peso << endl;
+        }
+    }
+}
+
+int main() {
+    int nVertices, orientado;
+    cin >> nVertices >> orientado; // lendo a quantidade de vertices e tipo do grafo
+
+    list<no> adj[nVertices]; // cria vetor de listas de adjacencia
+
+    int u, v, p;
+    
+    while (cin >> u >> v >> p && !(u == -1 && v == -1 && p == -1))  // lendo arestas até encontrar a linha "-1 -1 -1"
+    {
+        cria_aresta(adj, u, v, p, orientado);   // insere aresta no grafo
+    }
+
+    mostra_lista(adj, nVertices);  // mostra a lista de adjacência gerada
+
+    return 0;
+}
