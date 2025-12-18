@@ -1,0 +1,125 @@
+#include <iostream>   
+#include <list>       
+using namespace std;
+
+typedef int KeyType;    // Define KeyType como inteiro (chave da árvore)
+typedef int ValueType;  // Define ValueType como inteiro (valor armazenado)
+
+struct Datatype {     // Estrutura que agrupa chave e valor
+  KeyType key;        // Chave usada para ordenação na árvore
+  ValueType value;    // Valor associado à chave
+};
+
+struct node {         // Estrutura de um nó da árvore binária
+  Datatype data;      // Dados do nó (chave e valor)
+  node *left;         // Ponteiro para o filho da esquerda
+  node *right;        // Ponteiro para o filho da direita
+};
+
+void print_value(ValueType value) { // Função usada originalmente para imprimir
+  cout << value << " ";            // (não será usada nesta versão, mas mantida)
+}
+
+// inserção
+void insert(node * & curr, Datatype data) { // Função para inserir um novo nó
+  if (curr == NULL) {              // Se a posição está vazia
+    curr = new node;               // Aloca um novo nó na memória
+    curr->data = data;             // Define os dados do novo nó
+    curr->left = NULL;             // Inicializa filho esquerdo como NULL
+    curr->right = NULL;            // Inicializa filho direito como NULL
+  } else if (data.key < curr->data.key) { // Se chave menor → vai para a esquerda
+    insert(curr->left, data);     // Chamada recursiva à esquerda
+  } else {                        // Caso contrário → vai para a direita
+    insert(curr->right, data);   // Chamada recursiva à direita
+  }
+}
+
+// busca
+node * search(node * curr, int key) { // Busca um nó pela chave
+  if (curr == NULL) {          // Se posição está vazia, não encontrou
+    return NULL;
+  } else if (key == curr->data.key) { // Se encontrou a chave
+    return curr;
+  } else if (key < curr->data.key) {  // Se menor, busca à esquerda
+    return search(curr->left, key);
+  } else {                            // Se maior, busca à direita
+    return search(curr->right, key);
+  }
+}
+
+//remoção
+node* removeNode(node* curr, int key) { // Remove um nó com a chave "key"
+  if (curr == NULL) return curr;        // Se árvore vazia, retorna NULL
+
+  // Busca o nó na subárvore esquerda ou direita
+  if (key < curr->data.key)
+    curr->left = removeNode(curr->left, key);
+  else if (key > curr->data.key)
+    curr->right = removeNode(curr->right, key);
+  else { 
+    // CASO 1: nó folha (sem filhos)
+    if (curr->left == NULL && curr->right == NULL) {
+      delete curr; 
+      return NULL;
+    }
+    // CASO 2: um filho apenas
+    else if (curr->left == NULL) { 
+      node* temp = curr->right;
+      delete curr;
+      return temp;
+    } 
+    else if (curr->right == NULL) {
+      node* temp = curr->left;
+      delete curr;
+      return temp;
+    }
+    // CASO 3: dois filhos → substitui pelo sucessor (menor da direita)
+    node* temp = curr->right;
+    while (temp->left != NULL) temp = temp->left; 
+    curr->data = temp->data; 
+    curr->right = removeNode(curr->right, temp->data.key); 
+  }
+  return curr;
+}
+
+//função para liberar memoria
+void destruct(node *& curr) { // Libera toda a memória ocupada pela árvore
+  if (curr != NULL) {
+    destruct(curr->left);     // Libera recursivamente à esquerda
+    destruct(curr->right);    // Libera recursivamente à direita
+    delete curr;              // Libera o próprio nó
+    curr = NULL;              // Evita ponteiro pendurado
+  }
+}
+
+int main() {
+
+  node * root = NULL;            // Cria raiz da árvore vazia
+
+  int N;                         // Número de comandos
+  cin >> N;                      // Lê o total de operações
+
+  char op;                       // Pode ser 'i', 'b' ou 'r'
+  int x;                         // Valor para inserir/buscar/remover
+
+  for (int i = 0; i < N; i++) {  // Executa N comandos
+    cin >> op >> x;              // Lê a operação e o valor
+
+    if (op == 'i') {             // INSERÇÃO
+      insert(root, {x, x});      // Insere chave e valor iguais
+    } 
+    else if (op == 'b') {        // BUSCA
+      if (search(root, x) != NULL) { // Se encontrou
+        cout << "Sim" << endl;  // Imprime "Sim"
+      } else {                  // Se não encontrou
+        cout << "Não" << endl; // Imprime "Nao"
+      }
+    }
+    else if (op == 'r') {        // REMOÇÃO
+      root = removeNode(root, x); // Remove o nó com chave x
+    }
+  }
+
+  destruct(root);                // Libera toda a memória da árvore
+  return 0;                      // Finaliza o programa
+}
